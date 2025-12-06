@@ -10,6 +10,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "@solana/web3.js": "^1.95.8",
     "@x402-solintel/types": "workspace:*",
     "axios": "^1.7.9",

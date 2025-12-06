@@ -18,8 +18,13 @@ export interface Config {
   usdcMint: string;
   facilitatorUrl: string;
 
-  // External APIs
+  // AI Provider
+  aiProvider: 'openai' | 'anthropic' | 'mock';
   openaiApiKey: string;
+  openaiModel?: string;
+  anthropicApiKey?: string;
+
+  // External APIs
   heliusApiKey: string;
   birdeyeApiKey: string;
   rugcheckApiKey?: string;
@@ -56,7 +61,12 @@ const config: Config = {
       : process.env.USDC_MINT_MAINNET || 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
   facilitatorUrl: process.env.FACILITATOR_URL || 'http://localhost:3000',
 
+  // AI Provider Configuration
+  aiProvider: (process.env.AI_PROVIDER || 'openai') as 'openai' | 'anthropic' | 'mock',
   openaiApiKey: process.env.OPENAI_API_KEY || '',
+  openaiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+
   heliusApiKey: process.env.HELIUS_API_KEY || '',
   birdeyeApiKey: process.env.BIRDEYE_API_KEY || '',
   rugcheckApiKey: process.env.RUGCHECK_API_KEY,

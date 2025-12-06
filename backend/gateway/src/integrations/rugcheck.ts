@@ -10,7 +10,13 @@ export async function checkTokenSecurity(tokenAddress: string): Promise<RugCheck
   try {
     const url = `${RUGCHECK_API_BASE}/tokens/${tokenAddress}/report`;
 
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+      timeout: 8000,
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
     const report = response.data;
 
     // Parse RugCheck report
@@ -20,22 +26,22 @@ export async function checkTokenSecurity(tokenAddress: string): Promise<RugCheck
       score,
       freezeAuthority: report.freezeAuthority?.isSome || false,
       mintAuthority: report.mintAuthority?.isSome || false,
-      liquidityLocked: report.markets?.some((m: any) => m.lp.lpLockedPct > 0.5) || false,
+      liquidityLocked: report.markets?.some((m: any) => m.lp?.lpLockedPct > 0.5) || false,
       mutableMetadata: report.mutableMetadata || false,
-      top10Percent: report.tokenMeta?.top10HolderPercent || 0,
+      top10Percent: report.tokenMeta?.top10HolderPercent || 50,
       flags: report.risks?.map((r: any) => r.name) || [],
     };
-  } catch (error) {
-    console.error('[RUGCHECK] Error checking token security:', error);
-    // Return default conservative values
+  } catch (error: any) {
+    console.error('[RUGCHECK] Error checking token security:', error.response?.status, error.message);
+    // Return conservative default values that won't crash the service
     return {
-      score: 5,
-      freezeAuthority: false,
-      mintAuthority: false,
+      score: 6,
+      freezeAuthority: true,
+      mintAuthority: true,
       liquidityLocked: false,
-      mutableMetadata: false,
-      top10Percent: 0,
-      flags: ['API_ERROR'],
+      mutableMetadata: true,
+      top10Percent: 50,
+      flags: ['RUGCHECK_API_UNAVAILABLE'],
     };
   }
 }

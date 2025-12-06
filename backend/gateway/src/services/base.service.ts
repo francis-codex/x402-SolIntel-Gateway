@@ -1,5 +1,5 @@
 import { ServiceName } from '@x402-solintel/types';
-import { analyzeWithGPT } from '../integrations/openai';
+import { analyzeWithAI } from '../integrations/ai-provider';
 
 /**
  * Abstract base class for all AI services
@@ -19,7 +19,7 @@ export abstract class BaseAIService {
   abstract execute(input: any): Promise<any>;
 
   /**
-   * Analyze data using GPT-4
+   * Analyze data using AI (OpenAI or Claude)
    */
   protected async analyzeWithAI(
     prompt: string,
@@ -29,7 +29,7 @@ export abstract class BaseAIService {
     const defaultContext =
       'You are an expert Solana crypto analyst. Provide clear, actionable insights based on the data provided.';
 
-    return await analyzeWithGPT(
+    return await analyzeWithAI(
       systemContext || defaultContext,
       prompt,
       data

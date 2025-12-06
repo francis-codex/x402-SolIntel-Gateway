@@ -2,13 +2,22 @@ import { Job } from 'bull';
 import { JobData, ServiceName } from '@x402-solintel/types';
 import { serviceQueue } from './queue';
 import { TokenCheckService } from '../services/token-check.service';
+import { DeepAnalysisService } from '../services/deep-analysis.service';
+import { ContractAuditService } from '../services/contract-audit.service';
+import { WalletIntelligenceService } from '../services/wallet-intelligence.service';
+import { TradingSignalsService } from '../services/trading-signals.service';
+import { CodeGeneratorService } from '../services/code-generator.service';
 import { receiptStore } from '../storage/receipts';
 import { BaseAIService } from '../services/base.service';
 
 // Initialize services
 const services: Partial<Record<ServiceName, BaseAIService>> = {
   'token-check': new TokenCheckService(),
-  // More services will be added here
+  'deep-analysis': new DeepAnalysisService(),
+  'contract-audit': new ContractAuditService(),
+  'wallet-intelligence': new WalletIntelligenceService(),
+  'trading-signals': new TradingSignalsService(),
+  'code-generator': new CodeGeneratorService(),
 };
 
 /**

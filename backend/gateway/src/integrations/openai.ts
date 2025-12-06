@@ -15,8 +15,12 @@ export async function analyzeWithGPT(
   data: any
 ): Promise<string> {
   try {
+    // Use gpt-4o-mini (cheaper, faster, widely available)
+    // or gpt-4o for better quality
+    const model = config.openaiModel || 'gpt-4o-mini';
+
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model,
       messages: [
         {
           role: 'system',
@@ -28,12 +32,12 @@ export async function analyzeWithGPT(
         },
       ],
       temperature: 0.7,
-      max_tokens: 1000,
+      max_tokens: 2000,
     });
 
     return response.choices[0]?.message?.content || 'No analysis available';
-  } catch (error) {
-    console.error('[OPENAI] Error analyzing with GPT:', error);
+  } catch (error: any) {
+    console.error('[OPENAI] Error analyzing with GPT:', error.message);
     throw error;
   }
 }
@@ -62,8 +66,10 @@ CODE:
 EXPLANATION:
 [explanation here]`;
 
+    const model = config.openaiModel || 'gpt-4o-mini';
+
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model,
       messages: [
         {
           role: 'system',
@@ -75,7 +81,7 @@ EXPLANATION:
         },
       ],
       temperature: 0.5,
-      max_tokens: 2000,
+      max_tokens: 3000,
     });
 
     const content = response.choices[0]?.message?.content || '';

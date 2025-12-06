@@ -9,30 +9,75 @@ const HELIUS_API_BASE = 'https://api.helius.xyz/v0';
  */
 export async function getTokenInfo(tokenAddress: string): Promise<HeliusTokenInfo> {
   try {
-    const url = `${HELIUS_API_BASE}/token-metadata?api-key=${config.heliusApiKey}`;
+    // Method 1: Try DAS API (newer Helius API)
+    try {
+      const url = `https://mainnet.helius-rpc.com/?api-key=${config.heliusApiKey}`;
+      const response = await axios.post(url, {
+        jsonrpc: '2.0',
+        id: 'token-info',
+        method: 'getAsset',
+        params: {
+          id: tokenAddress,
+        },
+      });
 
-    const response = await axios.get(url, {
-      params: {
-        mintAccounts: [tokenAddress]
+      if (response.data?.result) {
+        const asset = response.data.result;
+        return {
+          symbol: asset.content?.metadata?.symbol || 'UNKNOWN',
+          name: asset.content?.metadata?.name || 'Unknown Token',
+          decimals: asset.token_info?.decimals || 9,
+          supply: asset.token_info?.supply || '0',
+          holders: 0,
+        };
       }
-    });
-
-    const tokenData = response.data[0];
-
-    if (!tokenData) {
-      throw new Error('Token not found');
+    } catch (dasError) {
+      console.log('[HELIUS] DAS API failed, trying token-metadata...');
     }
 
+    // Method 2: Try legacy token-metadata endpoint
+    const url = `${HELIUS_API_BASE}/token-metadata`;
+    const response = await axios.post(
+      url,
+      {
+        mintAccounts: [tokenAddress],
+      },
+      {
+        params: { 'api-key': config.heliusApiKey },
+      }
+    );
+
+    const tokenData = response.data?.[0];
+
+    if (tokenData) {
+      return {
+        symbol: tokenData.onChainMetadata?.metadata?.data?.symbol || tokenData.account || 'UNKNOWN',
+        name: tokenData.onChainMetadata?.metadata?.data?.name || tokenData.account || 'Unknown Token',
+        decimals: tokenData.onChainMetadata?.mint?.decimals || 9,
+        supply: tokenData.onChainMetadata?.mint?.supply || '0',
+        holders: 0,
+      };
+    }
+
+    // Fallback: Return basic info with token address
+    console.warn('[HELIUS] Using fallback token info');
     return {
-      symbol: tokenData.onChainMetadata?.metadata?.data?.symbol || 'UNKNOWN',
-      name: tokenData.onChainMetadata?.metadata?.data?.name || 'Unknown Token',
-      decimals: tokenData.onChainMetadata?.mint?.decimals || 9,
-      supply: tokenData.onChainMetadata?.mint?.supply || '0',
-      holders: 0, // Need to fetch from another endpoint
+      symbol: tokenAddress.substring(0, 6),
+      name: `Token ${tokenAddress.substring(0, 8)}...`,
+      decimals: 9,
+      supply: '0',
+      holders: 0,
     };
-  } catch (error) {
-    console.error('[HELIUS] Error fetching token info:', error);
-    throw error;
+  } catch (error: any) {
+    console.error('[HELIUS] Error fetching token info:', error.message);
+    // Return fallback instead of throwing
+    return {
+      symbol: tokenAddress.substring(0, 6),
+      name: `Token ${tokenAddress.substring(0, 8)}...`,
+      decimals: 9,
+      supply: '1000000000',
+      holders: 0,
+    };
   }
 }
 

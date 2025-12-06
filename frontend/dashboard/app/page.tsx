@@ -32,50 +32,62 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Service Card */}
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-shadow">
-            <div className="flex items-center gap-4 mb-6">
-              <span className="text-5xl">🔍</span>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  Quick Token Check
-                </h3>
-                <p className="text-gray-500">Instant risk assessment & security analysis</p>
-              </div>
+        {/* Services Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+          {/* Token Check */}
+          <Link href="/token-check" className="block">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full">
+              <div className="text-4xl mb-3">🔍</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Quick Token Check</h3>
+              <p className="text-gray-600 text-sm mb-4">Instant risk scoring and security analysis</p>
+              <div className="text-2xl font-bold text-purple-600">$0.02</div>
+              <div className="text-xs text-gray-500">per analysis</div>
             </div>
+          </Link>
 
-            <div className="space-y-3 mb-6">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="text-green-500">✓</span>
-                <span>Risk Score (0-10)</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="text-green-500">✓</span>
-                <span>Security Flags Detection</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="text-green-500">✓</span>
-                <span>AI-Powered Insights</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="text-green-500">✓</span>
-                <span>Holder Analysis</span>
-              </div>
-            </div>
+          {/* Deep Analysis */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full opacity-90">
+            <div className="text-4xl mb-3">📊</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Deep Token Analysis</h3>
+            <p className="text-gray-600 text-sm mb-4">Full due diligence with social sentiment</p>
+            <div className="text-2xl font-bold text-purple-600">$0.08</div>
+            <div className="text-xs text-gray-500">per report</div>
+          </div>
 
-            <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-              <div>
-                <div className="text-3xl font-bold text-gray-900">$0.020</div>
-                <div className="text-sm text-gray-500">USDC per analysis</div>
-              </div>
-              <Link
-                href="/token-check"
-                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
-              >
-                Try Now →
-              </Link>
-            </div>
+          {/* Contract Audit */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full opacity-90">
+            <div className="text-4xl mb-3">🛡️</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Smart Contract Audit</h3>
+            <p className="text-gray-600 text-sm mb-4">Security vulnerability detection</p>
+            <div className="text-2xl font-bold text-purple-600">$0.10</div>
+            <div className="text-xs text-gray-500">per audit</div>
+          </div>
+
+          {/* Wallet Intelligence */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full opacity-90">
+            <div className="text-4xl mb-3">👤</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Wallet Intelligence</h3>
+            <p className="text-gray-600 text-sm mb-4">Trading pattern analysis & PnL tracking</p>
+            <div className="text-2xl font-bold text-purple-600">$0.05</div>
+            <div className="text-xs text-gray-500">per analysis</div>
+          </div>
+
+          {/* Trading Signals */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full opacity-90">
+            <div className="text-4xl mb-3">📈</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Trading Signals</h3>
+            <p className="text-gray-600 text-sm mb-4">AI-powered buy/sell recommendations</p>
+            <div className="text-2xl font-bold text-purple-600">$0.03</div>
+            <div className="text-xs text-gray-500">per signal</div>
+          </div>
+
+          {/* Code Generator */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full opacity-90">
+            <div className="text-4xl mb-3">🤖</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Code Generator</h3>
+            <p className="text-gray-600 text-sm mb-4">Generate Solana program code & tests</p>
+            <div className="text-2xl font-bold text-purple-600">$0.05</div>
+            <div className="text-xs text-gray-500">per generation</div>
           </div>
         </div>
 
