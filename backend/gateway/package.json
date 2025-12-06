@@ -1,0 +1,32 @@
+{
+  "name": "gateway",
+  "version": "1.0.0",
+  "description": "AI Intelligence Gateway with x402 Payment Integration",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.8",
+    "@x402-solintel/types": "workspace:*",
+    "axios": "^1.7.9",
+    "bull": "^4.12.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "openai": "^4.73.0",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@types/bull": "^4.10.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

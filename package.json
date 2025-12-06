@@ -1,0 +1,35 @@
+{
+  "name": "x402-solintel-gateway",
+  "version": "1.0.0",
+  "description": "x402-SolIntel-Gateway - AI-powered Solana intelligence with x402 micropayments",
+  "private": true,
+  "workspaces": [
+    "backend/gateway",
+    "backend/facilitator",
+    "frontend/dashboard",
+    "shared/types"
+  ],
+  "scripts": {
+    "install:all": "pnpm install",
+    "dev:gateway": "pnpm --filter gateway dev",
+    "dev:facilitator": "pnpm --filter facilitator dev",
+    "dev:dashboard": "pnpm --filter dashboard dev",
+    "build:all": "pnpm -r build",
+    "clean": "pnpm -r clean && rm -rf node_modules"
+  },
+  "keywords": [
+    "x402",
+    "solana",
+    "ai",
+    "crypto",
+    "intelligence",
+    "micropayments",
+    "openai"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
