@@ -1,8 +1,6 @@
 import { BaseAIService } from './base.service';
 import { TokenCheckInput, TokenCheckResult } from '@x402-solintel/types';
-import { getTokenInfo } from '../integrations/helius';
-import { getTokenMetrics } from '../integrations/birdeye';
-import { checkTokenSecurity } from '../integrations/rugcheck';
+import { performComprehensiveAnalysis, generateAnalysisSummary } from './comprehensive-analysis.service';
 import config from '../config';
 
 /**
@@ -28,56 +26,76 @@ export class TokenCheckService extends BaseAIService {
     }
 
     try {
-      // 1. Fetch data from multiple sources in parallel
-      const [tokenInfo, metrics, security] = await Promise.all([
-        getTokenInfo(input.tokenAddress),
-        getTokenMetrics(input.tokenAddress),
-        checkTokenSecurity(input.tokenAddress),
-      ]);
+      console.log('[TOKEN_CHECK] Starting comprehensive analysis...');
 
-      // 2. Calculate risk score
-      const riskScore = this.calculateRiskScore(security);
+      // 1. Perform comprehensive multi-source analysis
+      const analysis = await performComprehensiveAnalysis(input.tokenAddress);
 
-      // 3. Prepare data for AI analysis
-      const analysisData = {
-        token: tokenInfo,
-        metrics,
-        security,
-        riskScore,
-      };
+      // 2. Generate human-readable summary for AI
+      const dataSummary = generateAnalysisSummary(analysis);
 
-      // 4. Get AI insights
-      const aiSummary = await this.analyzeWithAI(
-        'Provide a brief (2-3 sentences) risk assessment and recommendation for this Solana token. Be direct and actionable.',
-        analysisData
-      );
+      // 3. Create enhanced AI prompt with structured criteria
+      const enhancedPrompt = `You are a professional Solana token analyst. Analyze the following token data and provide a comprehensive assessment.
 
-      // 5. Get recommendation
+${dataSummary}
+
+REQUIRED OUTPUT FORMAT:
+
+1. IMMEDIATE VERDICT (1 line):
+[State if the token is SAFE TO TRADE, RISKY, or DANGEROUS - be direct]
+
+2. KEY FINDINGS (3-5 bullet points):
+- [Most critical security findings]
+- [Liquidity and market concerns]
+- [Holder distribution issues if any]
+- [Price reliability assessment]
+- [Any other critical red flags]
+
+3. TRADING RECOMMENDATION (2-3 sentences):
+[Specific, actionable advice on whether to trade this token and under what conditions. Include position size recommendations if applicable.]
+
+4. RISK SUMMARY (1 sentence):
+[Concise summary of the primary risk factors]
+
+Be direct, factual, and prioritize user safety. If data is insufficient, state this clearly.`;
+
+      // 4. Get enhanced AI analysis
+      const aiAnalysis = await this.analyzeWithAI(enhancedPrompt, {
+        tokenAddress: input.tokenAddress,
+        analysis
+      });
+
+      // 5. Convert 0-100 risk score to 0-10 scale
+      const riskScore = Math.round((100 - analysis.riskAssessment.score) / 10);
+
+      // 6. Get recommendation
       const recommendation = this.getRecommendation(riskScore);
 
       const executionTime = Date.now() - startTime;
+
+      console.log(`[TOKEN_CHECK] Analysis completed in ${executionTime}ms`);
 
       return {
         service: 'token-check',
         token: {
           address: input.tokenAddress,
-          symbol: tokenInfo.symbol,
-          name: tokenInfo.name,
+          symbol: analysis.basicInfo.symbol || 'UNKNOWN',
+          name: analysis.basicInfo.name || 'Unknown Token',
         },
         quick_stats: {
-          price: metrics.price,
-          market_cap: metrics.marketCap,
-          holders: tokenInfo.holders,
-          liquidity: metrics.liquidity,
+          price: analysis.priceData.price.toString(),
+          market_cap: analysis.marketData.marketCap.toString(),
+          holders: 0, // Can be added from Solscan if needed
+          liquidity: analysis.marketData.liquidity.toString(),
         },
         risk_score: riskScore,
         security_flags: {
-          freeze_authority: security.freezeAuthority,
-          mint_authority: security.mintAuthority,
-          mutable_metadata: security.mutableMetadata,
-          liquidity_locked: security.liquidityLocked,
+          freeze_authority: analysis.securityData?.isMintable || false,
+          mint_authority: analysis.securityData?.isMintable || false,
+          mutable_metadata: false,
+          liquidity_locked: analysis.marketData.liquidity > 25000,
         },
-        ai_summary: aiSummary,
+        ai_summary: aiAnalysis,
         recommendation,
         timestamp: Date.now(),
       };
@@ -90,26 +108,7 @@ export class TokenCheckService extends BaseAIService {
   }
 
   /**
-   * Calculate risk score (0-10, 10 = safest)
-   */
-  private calculateRiskScore(security: any): number {
-    let score = 10;
-
-    // Deduct points for security issues
-    if (security.freezeAuthority) score -= 2;
-    if (security.mintAuthority) score -= 2;
-    if (security.mutableMetadata) score -= 1;
-    if (!security.liquidityLocked) score -= 3;
-
-    // Holder concentration
-    if (security.top10Percent > 50) score -= 2;
-    else if (security.top10Percent > 30) score -= 1;
-
-    return Math.max(0, Math.min(10, score));
-  }
-
-  /**
-   * Get recommendation based on risk score
+   * Get recommendation based on risk score (0-10, 10 = safest)
    */
   private getRecommendation(
     score: number
