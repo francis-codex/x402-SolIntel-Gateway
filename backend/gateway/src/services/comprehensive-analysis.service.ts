@@ -18,6 +18,7 @@ export interface ComprehensiveTokenAnalysis {
         confidence: number;
         sources: number;
         recommendation: string;
+
         sourcesUsed: string[];
     };
     apiStatus: { [key: string]: boolean };

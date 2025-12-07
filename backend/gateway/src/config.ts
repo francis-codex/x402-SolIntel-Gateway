@@ -28,6 +28,7 @@ export interface Config {
   heliusApiKey: string;
   birdeyeApiKey: string;
   rugcheckApiKey?: string;
+  solscanApiKey?: string;
 
   // Redis
   redisUrl: string;
@@ -70,6 +71,7 @@ const config: Config = {
   heliusApiKey: process.env.HELIUS_API_KEY || '',
   birdeyeApiKey: process.env.BIRDEYE_API_KEY || '',
   rugcheckApiKey: process.env.RUGCHECK_API_KEY,
+  solscanApiKey: process.env.SOLSCAN_API_KEY,
 
   redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
 
@@ -94,5 +96,15 @@ if (!config.recipientWallet) {
 if (!config.openaiApiKey) {
   console.warn('[CONFIG] Warning: OPENAI_API_KEY not set');
 }
+
+// Log API configuration status
+console.log('[CONFIG] API Keys Status:');
+console.log(`  Helius:     ${config.heliusApiKey ? '✓ Configured' : '✗ Missing'}`);
+console.log(`  Birdeye:    ${config.birdeyeApiKey ? '✓ Configured' : '✗ Missing'}`);
+console.log(`  Solscan:    ${config.solscanApiKey ? '✓ Configured' : '✗ Missing (optional)'}`);
+console.log(`  RugCheck:   ${config.rugcheckApiKey ? '✓ Configured' : '✗ Missing (optional)'}`);
+console.log(`  OpenAI:     ${config.openaiApiKey ? '✓ Configured' : '✗ Missing'}`);
+console.log(`  Anthropic:  ${config.anthropicApiKey ? '✓ Configured' : '✗ Missing'}`);
+console.log(`  AI Provider: ${config.aiProvider}`);
 
 export default config;

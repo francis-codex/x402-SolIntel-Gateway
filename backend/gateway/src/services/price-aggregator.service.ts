@@ -1,6 +1,5 @@
 import { getJupiterPrice } from '../integrations/jupiter';
 import { getDexScreenerTokenData } from '../integrations/dexscreener';
-import { getCoinGeckoPrice } from '../integrations/coingecko';
 import { getBirdeyePrice } from '../integrations/birdeye';
 
 export interface PriceSource {
@@ -29,10 +28,9 @@ export async function aggregateTokenPrice(tokenAddress: string): Promise<Aggrega
     const timestamp = Date.now();
 
     // Fetch from all sources in parallel
-    const [jupiterData, dexScreenerData, coinGeckoData, birdeyeData] = await Promise.all([
+    const [jupiterData, dexScreenerData, birdeyeData] = await Promise.all([
         getJupiterPrice(tokenAddress).catch(() => null),
         getDexScreenerTokenData(tokenAddress).catch(() => null),
-        getCoinGeckoPrice(tokenAddress).catch(() => null),
         getBirdeyePrice(tokenAddress).catch(() => null)
     ]);
 
@@ -55,15 +53,6 @@ export async function aggregateTokenPrice(tokenAddress: string): Promise<Aggrega
         });
     }
 
-    if (coinGeckoData && coinGeckoData.usd > 0) {
-        sources.push({
-            source: 'CoinGecko',
-            price: coinGeckoData.usd,
-            reliable: true,
-            timestamp
-        });
-    }
-
     if (birdeyeData && birdeyeData.price > 0 && !birdeyeData.isMock) {
         sources.push({
             source: 'Birdeye',
@@ -71,6 +60,8 @@ export async function aggregateTokenPrice(tokenAddress: string): Promise<Aggrega
             reliable: true,
             timestamp
         });
+    } else if (birdeyeData?.isMock) {
+        console.log('[PRICE_AGGREGATOR] Excluding Birdeye mock data from price verification');
     }
 
     // No sources available

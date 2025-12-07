@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { cache } from '../utils/cache';
+import config from '../config';
 
 const SOLSCAN_API_BASE = 'https://pro-api.solscan.io/v2.0';
 const CACHE_TTL = 120000; // 2 minutes for holder data (changes slowly)
@@ -53,10 +54,11 @@ export interface SolscanTokenMetaResponse {
  * @returns Token metadata or null if unavailable
  */
 export async function getSolscanTokenMeta(tokenAddress: string): Promise<SolscanTokenMeta | null> {
-    const apiKey = process.env.SOLSCAN_API_KEY;
+    const apiKey = config.solscanApiKey;
 
     if (!apiKey) {
         console.log('[SOLSCAN] API key not configured, skipping metadata fetch');
+        console.log('[SOLSCAN] Add SOLSCAN_API_KEY to your .env file');
         return null;
     }
 
@@ -115,10 +117,11 @@ export async function getSolscanHolders(
     page: number = 1,
     pageSize: number = 40
 ): Promise<SolscanHolder[] | null> {
-    const apiKey = process.env.SOLSCAN_API_KEY;
+    const apiKey = config.solscanApiKey;
 
     if (!apiKey) {
         console.log('[SOLSCAN] API key not configured, skipping holder fetch');
+        console.log('[SOLSCAN] Add SOLSCAN_API_KEY to your .env file');
         return null;
     }
 
