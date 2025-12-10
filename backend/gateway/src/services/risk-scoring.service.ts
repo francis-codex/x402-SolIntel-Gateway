@@ -1,4 +1,4 @@
-import { analyzeHolderDistribution } from '../integrations/solscan';
+import { analyzeTokenHolderDistribution } from '../integrations/helius';
 import { getComprehensiveSecurityCheck } from '../integrations/goplus';
 import { aggregateTokenPrice } from './price-aggregator.service';
 import { getDexScreenerTokenData } from '../integrations/dexscreener';
@@ -31,7 +31,7 @@ export async function calculateRiskScore(tokenAddress: string): Promise<RiskScor
     // Fetch all data in parallel
     const [securityCheck, holderDistribution, priceData, dexData, rugCheck] = await Promise.all([
         getComprehensiveSecurityCheck(tokenAddress).catch(() => null),
-        analyzeHolderDistribution(tokenAddress).catch(() => null),
+        analyzeTokenHolderDistribution(tokenAddress).catch(() => null),
         aggregateTokenPrice(tokenAddress).catch(() => null),
         getDexScreenerTokenData(tokenAddress).catch(() => null),
         checkTokenSecurity(tokenAddress).catch(() => null)

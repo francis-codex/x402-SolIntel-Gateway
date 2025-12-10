@@ -1,6 +1,7 @@
 import { getJupiterPrice } from '../integrations/jupiter';
 import { getDexScreenerTokenData } from '../integrations/dexscreener';
 import { getBirdeyePrice } from '../integrations/birdeye';
+import { getRaydiumPrice } from '../integrations/raydium';
 
 export interface PriceSource {
     source: string;
@@ -28,10 +29,11 @@ export async function aggregateTokenPrice(tokenAddress: string): Promise<Aggrega
     const timestamp = Date.now();
 
     // Fetch from all sources in parallel
-    const [jupiterData, dexScreenerData, birdeyeData] = await Promise.all([
+    const [jupiterData, dexScreenerData, birdeyeData, raydiumPrice] = await Promise.all([
         getJupiterPrice(tokenAddress).catch(() => null),
         getDexScreenerTokenData(tokenAddress).catch(() => null),
-        getBirdeyePrice(tokenAddress).catch(() => null)
+        getBirdeyePrice(tokenAddress).catch(() => null),
+        getRaydiumPrice(tokenAddress).catch(() => null)
     ]);
 
     // Collect prices from each source
@@ -62,6 +64,15 @@ export async function aggregateTokenPrice(tokenAddress: string): Promise<Aggrega
         });
     } else if (birdeyeData?.isMock) {
         console.log('[PRICE_AGGREGATOR] Excluding Birdeye mock data from price verification');
+    }
+
+    if (raydiumPrice && raydiumPrice > 0) {
+        sources.push({
+            source: 'Raydium',
+            price: raydiumPrice,
+            reliable: true,
+            timestamp
+        });
     }
 
     // No sources available

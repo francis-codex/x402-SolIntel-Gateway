@@ -1,7 +1,8 @@
 import { aggregateTokenPrice, getDetailedPriceComparison } from './price-aggregator.service';
 import { calculateRiskScore, generateRiskReport } from './risk-scoring.service';
 import { getComprehensiveSecurityCheck } from '../integrations/goplus';
-import { analyzeHolderDistribution, getSolscanTokenMeta } from '../integrations/solscan';
+import { getSolscanTokenMeta } from '../integrations/solscan';
+import { analyzeTokenHolderDistribution } from '../integrations/helius';
 import { getDexScreenerTokenData } from '../integrations/dexscreener';
 import { getTokenInfo } from '../integrations/helius';
 import { checkTokenSecurity } from '../integrations/rugcheck';
@@ -77,7 +78,7 @@ export async function performComprehensiveAnalysis(
         getSolscanTokenMeta(tokenAddress).then(r => { apiStatus['Solscan Meta'] = true; return r; }).catch(() => { apiStatus['Solscan Meta'] = false; return null; }),
         getDexScreenerTokenData(tokenAddress).then(r => { apiStatus['DexScreener'] = !!r; return r; }).catch(() => { apiStatus['DexScreener'] = false; return null; }),
         getComprehensiveSecurityCheck(tokenAddress).then(r => { apiStatus['GoPlus Security'] = !!r; return r; }).catch(() => { apiStatus['GoPlus Security'] = false; return null; }),
-        analyzeHolderDistribution(tokenAddress).then(r => { apiStatus['Solscan Holders'] = !!r; return r; }).catch(() => { apiStatus['Solscan Holders'] = false; return null; }),
+        analyzeTokenHolderDistribution(tokenAddress).then(r => { apiStatus['Helius Holders'] = !!r; return r; }).catch(() => { apiStatus['Helius Holders'] = false; return null; }),
         checkTokenSecurity(tokenAddress).then(r => { apiStatus['RugCheck'] = true; return r; }).catch(() => { apiStatus['RugCheck'] = false; return null; })
     ]);
 

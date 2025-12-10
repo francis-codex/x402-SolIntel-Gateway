@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { cache } from '../utils/cache';
-import config from '../config';
 
-const SOLSCAN_API_BASE = 'https://pro-api.solscan.io/v2.0';
+const SOLSCAN_PUBLIC_API_BASE = 'https://public-api.solscan.io';
 const CACHE_TTL = 120000; // 2 minutes for holder data (changes slowly)
 
 export interface SolscanHolder {
@@ -54,14 +53,6 @@ export interface SolscanTokenMetaResponse {
  * @returns Token metadata or null if unavailable
  */
 export async function getSolscanTokenMeta(tokenAddress: string): Promise<SolscanTokenMeta | null> {
-    const apiKey = config.solscanApiKey;
-
-    if (!apiKey) {
-        console.log('[SOLSCAN] API key not configured, skipping metadata fetch');
-        console.log('[SOLSCAN] Add SOLSCAN_API_KEY to your .env file');
-        return null;
-    }
-
     const cacheKey = `solscan:meta:${tokenAddress}`;
 
     // Check cache first
@@ -71,38 +62,11 @@ export async function getSolscanTokenMeta(tokenAddress: string): Promise<Solscan
         return cached;
     }
 
-    try {
-        console.log('[SOLSCAN] Fetching token metadata...');
-        const response = await axios.get<SolscanTokenMetaResponse>(
-            `${SOLSCAN_API_BASE}/token/meta`,
-            {
-                params: { address: tokenAddress },
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                timeout: 5000
-            }
-        );
-
-        if (!response.data.success || !response.data.data) {
-            console.log('[SOLSCAN] No metadata available');
-            return null;
-        }
-
-        const metadata = response.data.data;
-
-        // Cache the result
-        cache.set(cacheKey, metadata, CACHE_TTL);
-
-        console.log('[SOLSCAN] Token metadata fetched successfully');
-        return metadata;
-    } catch (error: any) {
-        console.error('[SOLSCAN] Error fetching token metadata:', {
-            message: error.message,
-            status: error.response?.status
-        });
-        return null;
-    }
+    // Solscan Public API is no longer available (404)
+    // Pro API requires paid subscription
+    // Disabling for now - Helius provides token metadata
+    console.log('[SOLSCAN] Skipping (requires paid Pro API subscription)');
+    return null;
 }
 
 /**
@@ -117,14 +81,6 @@ export async function getSolscanHolders(
     page: number = 1,
     pageSize: number = 40
 ): Promise<SolscanHolder[] | null> {
-    const apiKey = config.solscanApiKey;
-
-    if (!apiKey) {
-        console.log('[SOLSCAN] API key not configured, skipping holder fetch');
-        console.log('[SOLSCAN] Add SOLSCAN_API_KEY to your .env file');
-        return null;
-    }
-
     const cacheKey = `solscan:holders:${tokenAddress}:${page}:${pageSize}`;
 
     // Check cache first
@@ -134,42 +90,11 @@ export async function getSolscanHolders(
         return cached;
     }
 
-    try {
-        console.log('[SOLSCAN] Fetching token holders...');
-        const response = await axios.get<SolscanHoldersResponse>(
-            `${SOLSCAN_API_BASE}/token/holders`,
-            {
-                params: {
-                    address: tokenAddress,
-                    page,
-                    page_size: pageSize
-                },
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                timeout: 5000
-            }
-        );
-
-        if (!response.data.success || !response.data.data) {
-            console.log('[SOLSCAN] No holder data available');
-            return null;
-        }
-
-        const holders = response.data.data.items;
-
-        // Cache the result
-        cache.set(cacheKey, holders, CACHE_TTL);
-
-        console.log(`[SOLSCAN] Fetched ${holders.length} holders`);
-        return holders;
-    } catch (error: any) {
-        console.error('[SOLSCAN] Error fetching holders:', {
-            message: error.message,
-            status: error.response?.status
-        });
-        return null;
-    }
+    // Solscan Public API is no longer available (404)
+    // Pro API requires paid subscription
+    // Disabling for now
+    console.log('[SOLSCAN] Skipping holders (requires paid Pro API subscription)');
+    return null;
 }
 
 /**
