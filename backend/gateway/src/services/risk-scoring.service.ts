@@ -72,7 +72,8 @@ export async function calculateRiskScore(tokenAddress: string): Promise<RiskScor
             totalRisk += Math.min(maxTax, 30);
         }
 
-        if (!sec.isOpenSource) {
+        // Only penalize closed source for low liquidity tokens (likely new/untested)
+        if (!sec.isOpenSource && (!dexData || dexData.totalLiquidity < 100000)) {
             factors.push({
                 category: 'Security',
                 risk: 15,
@@ -82,17 +83,20 @@ export async function calculateRiskScore(tokenAddress: string): Promise<RiskScor
             totalRisk += 15;
         }
 
-        // Add remaining GoPlus risks
+        // Add remaining GoPlus risks (reduce severity for established tokens)
         if (sec.risks.length > 0) {
+            const hasHighLiquidity = dexData && dexData.totalLiquidity > 500000;
+            const riskPenalty = hasHighLiquidity ? 5 : 10; // Halve penalty for established tokens
+
             sec.risks.forEach((riskText: string) => {
                 if (!riskText.includes('HONEYPOT') && !riskText.includes('tax')) {
                     factors.push({
                         category: 'Security',
-                        risk: 10,
-                        severity: 'MEDIUM',
+                        risk: riskPenalty,
+                        severity: hasHighLiquidity ? 'LOW' : 'MEDIUM',
                         description: riskText
                     });
-                    totalRisk += 10;
+                    totalRisk += riskPenalty;
                 }
             });
         }
@@ -207,14 +211,20 @@ export async function calculateRiskScore(tokenAddress: string): Promise<RiskScor
         totalRisk += 35;
     }
 
-    // 5. RugCheck Integration
+    // 5. RugCheck Integration (reduce for established tokens)
     if (rugCheck) {
         if (rugCheck.flags && rugCheck.flags.length > 0) {
-            const rugRisk = Math.min(rugCheck.flags.length * 10, 40);
+            const hasHighLiquidity = dexData && dexData.totalLiquidity > 500000;
+            const hasHighMarketCap = dexData && dexData.marketCap > 100000000;
+
+            // Reduce RugCheck penalty for established tokens (likely false positives)
+            const flagPenalty = (hasHighLiquidity || hasHighMarketCap) ? 3 : 10;
+            const rugRisk = Math.min(rugCheck.flags.length * flagPenalty, 40);
+
             factors.push({
                 category: 'RugCheck',
                 risk: rugRisk,
-                severity: rugRisk > 30 ? 'HIGH' : 'MEDIUM',
+                severity: (hasHighLiquidity || hasHighMarketCap) ? 'LOW' : (rugRisk > 30 ? 'HIGH' : 'MEDIUM'),
                 description: `⚠️ RugCheck found ${rugCheck.flags.length} potential issues`
             });
             totalRisk += rugRisk;
@@ -223,6 +233,13 @@ export async function calculateRiskScore(tokenAddress: string): Promise<RiskScor
 
     // Cap total risk at 100
     totalRisk = Math.min(totalRisk, 100);
+
+    // Log detailed risk breakdown
+    console.log('[RISK_SCORING] Total risk score:', totalRisk);
+    console.log('[RISK_SCORING] Risk factors breakdown:');
+    factors.forEach(f => {
+        console.log(`  - ${f.category}: +${f.risk} (${f.severity}) - ${f.description}`);
+    });
 
     // Determine risk level
     const riskLevel: RiskScore['riskLevel'] =

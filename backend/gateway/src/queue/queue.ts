@@ -22,7 +22,7 @@ export const serviceQueue = new Bull<JobData>('ai-services', config.redisUrl, {
  */
 export async function addJobToQueue(data: JobData): Promise<Bull.Job<JobData>> {
   const job = await serviceQueue.add(data, {
-    timeout: 60000, // 60 seconds max processing time
+    timeout: 120000, // 120 seconds max processing time (increased for AI calls)
   });
 
   console.log(`[QUEUE] Job ${job.id} added for service: ${data.service}`);
