@@ -98,18 +98,39 @@ export async function calculateRiskScore(tokenAddress: string): Promise<RiskScor
         }
     }
 
-    // 2. Holder Concentration Risk
+    // 2. Holder Concentration Risk (adjusted for token legitimacy)
     if (holderDistribution) {
         const concentrationRisk = holderDistribution.concentrationRisk;
 
-        if (concentrationRisk > 0) {
+        // Reduce concentration risk for high liquidity tokens (likely treasury/DAO/exchange wallets)
+        let adjustedConcentrationRisk = concentrationRisk;
+        const hasHighLiquidity = dexData && dexData.totalLiquidity > 500000;
+        const hasHighMarketCap = dexData && dexData.marketCap > 100000000; // $100M+
+
+        console.log('[RISK_SCORING] Holder concentration:', {
+            original: concentrationRisk,
+            hasHighLiquidity,
+            hasHighMarketCap,
+            liquidity: dexData?.totalLiquidity,
+            marketCap: dexData?.marketCap
+        });
+
+        if ((hasHighLiquidity || hasHighMarketCap) && concentrationRisk > 0) {
+            // For legitimate large-cap tokens, concentration is often due to treasury/DAO/exchanges
+            adjustedConcentrationRisk = Math.round(concentrationRisk * 0.3); // Reduce by 70%
+            console.log('[RISK_SCORING] Adjusted concentration risk from', concentrationRisk, 'to', adjustedConcentrationRisk);
+        }
+
+        if (adjustedConcentrationRisk > 0) {
             factors.push({
                 category: 'Holder Distribution',
-                risk: concentrationRisk,
-                severity: holderDistribution.riskLevel as any,
-                description: `${holderDistribution.riskLevel} holder concentration - Top holder: ${holderDistribution.topHolderPercentage.toFixed(1)}%, Top 10: ${holderDistribution.top10Percentage.toFixed(1)}%`
+                risk: adjustedConcentrationRisk,
+                severity: adjustedConcentrationRisk > 60 ? 'HIGH' : adjustedConcentrationRisk > 40 ? 'MEDIUM' : 'LOW',
+                description: hasHighLiquidity || hasHighMarketCap ?
+                    `⚠️ Holder concentration (likely treasury/DAO wallets) - Top holder: ${holderDistribution.topHolderPercentage.toFixed(1)}%, Top 10: ${holderDistribution.top10Percentage.toFixed(1)}%` :
+                    `${holderDistribution.riskLevel} holder concentration - Top holder: ${holderDistribution.topHolderPercentage.toFixed(1)}%, Top 10: ${holderDistribution.top10Percentage.toFixed(1)}%`
             });
-            totalRisk += concentrationRisk;
+            totalRisk += adjustedConcentrationRisk;
         }
     }
 

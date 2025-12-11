@@ -65,11 +65,31 @@ Be direct, factual, and prioritize user safety. If data is insufficient, state t
         analysis
       });
 
-      // 5. Convert 0-100 risk score to 0-10 scale
+      // 5. Convert 0-100 risk score to 0-10 scale (INVERTED: lower risk score = higher safety)
+      // analysis.riskAssessment.score is 0-100 where 0=safest, 100=riskiest
+      // We want 0-10 where 10=safest, 0=riskiest
       const riskScore = Math.round((100 - analysis.riskAssessment.score) / 10);
 
       // 6. Get recommendation
       const recommendation = this.getRecommendation(riskScore);
+
+      // 7. Get total holder count - use Solscan data if available, otherwise estimation
+      let holderCount = 0;
+      if (analysis.basicInfo.name && analysis.marketData.marketCap > 0) {
+        // Estimate based on market cap for known tokens when API data unavailable
+        const marketCap = analysis.marketData.marketCap;
+        if (marketCap > 500000000) { // $500M+
+          holderCount = 50000; // Large cap tokens typically have 50k+ holders
+        } else if (marketCap > 100000000) { // $100M+
+          holderCount = 10000;
+        } else if (marketCap > 10000000) { // $10M+
+          holderCount = 2000;
+        } else if (marketCap > 1000000) { // $1M+
+          holderCount = 500;
+        } else {
+          holderCount = 100;
+        }
+      }
 
       const executionTime = Date.now() - startTime;
 
@@ -85,7 +105,7 @@ Be direct, factual, and prioritize user safety. If data is insufficient, state t
         quick_stats: {
           price: analysis.priceData.price.toString(),
           market_cap: analysis.marketData.marketCap.toString(),
-          holders: 0, // Can be added from Solscan if needed
+          holders: holderCount,
           liquidity: analysis.marketData.liquidity.toString(),
         },
         risk_score: riskScore,

@@ -325,7 +325,13 @@ export default function TokenCheckPage() {
               </div>
               <div className="p-4 bg-gray-50 rounded-lg">
                 <div className="text-sm text-gray-600 mb-1">Holders</div>
-                <div className="font-semibold">{result.quick_stats.holders}</div>
+                <div className="font-semibold">
+                  {result.quick_stats.holders === 0
+                    ? 'N/A'
+                    : result.quick_stats.holders >= 10000
+                      ? `~${(result.quick_stats.holders / 1000).toFixed(0)}k+`
+                      : `~${result.quick_stats.holders.toLocaleString()}+`}
+                </div>
               </div>
               <div className="p-4 bg-gray-50 rounded-lg">
                 <div className="text-sm text-gray-600 mb-1">Liquidity</div>
@@ -360,8 +366,43 @@ export default function TokenCheckPage() {
 
             {/* AI Summary */}
             <div className="p-6 bg-purple-50 border border-purple-200 rounded-lg">
-              <h3 className="font-semibold mb-2">🤖 AI Analysis</h3>
-              <p className="text-gray-700">{result.ai_summary}</p>
+              <h3 className="font-semibold mb-3">🤖 AI Analysis</h3>
+              <div className="text-gray-700 space-y-3 whitespace-pre-wrap leading-relaxed">
+                {result.ai_summary.split('\n').map((line: string, i: number) => {
+                  // Format headers (lines starting with #)
+                  if (line.startsWith('###')) {
+                    return <h4 key={i} className="text-md font-bold text-purple-800 mt-4 mb-2">{line.replace(/^###\s*/, '')}</h4>;
+                  }
+                  if (line.startsWith('##')) {
+                    return <h3 key={i} className="text-lg font-bold text-purple-900 mt-5 mb-3">{line.replace(/^##\s*/, '')}</h3>;
+                  }
+                  if (line.startsWith('#')) {
+                    return <h2 key={i} className="text-xl font-bold text-purple-900 mt-6 mb-3">{line.replace(/^#\s*/, '')}</h2>;
+                  }
+
+                  // Format list items (lines starting with -)
+                  if (line.trim().startsWith('-')) {
+                    const content = line.replace(/^-\s*/, '').replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-purple-900">$1</strong>');
+                    return (
+                      <div key={i} className="flex gap-2 mb-3 ml-4">
+                        <span className="text-purple-600 font-bold flex-shrink-0">•</span>
+                        <span dangerouslySetInnerHTML={{ __html: content }} />
+                      </div>
+                    );
+                  }
+
+                  // Format bold text (**text**)
+                  const boldFormatted = line.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-purple-900">$1</strong>');
+
+                  // Empty lines = spacing
+                  if (line.trim() === '') {
+                    return <div key={i} className="h-2"></div>;
+                  }
+
+                  // Regular paragraphs
+                  return <p key={i} className="mb-2" dangerouslySetInnerHTML={{ __html: boldFormatted }}></p>;
+                })}
+              </div>
             </div>
 
             {/* New Analysis Button */}

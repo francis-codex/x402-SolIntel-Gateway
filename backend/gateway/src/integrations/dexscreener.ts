@@ -82,7 +82,7 @@ export async function getDexScreenerPairs(tokenAddress: string): Promise<DexScre
     try {
         console.log('[DEXSCREENER] Fetching token pairs...');
         const response = await axios.get<DexScreenerResponse>(
-            `${DEXSCREENER_API_BASE}/token-pairs/v1/solana/${tokenAddress}`,
+            `${DEXSCREENER_API_BASE}/latest/dex/tokens/${tokenAddress}`,
             { timeout: 5000 }
         );
 
