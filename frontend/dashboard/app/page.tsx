@@ -46,49 +46,59 @@ export default function Home() {
           </Link>
 
           {/* Deep Analysis */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full opacity-90">
-            <div className="text-4xl mb-3">📊</div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Deep Token Analysis</h3>
-            <p className="text-gray-600 text-sm mb-4">Full due diligence with social sentiment</p>
-            <div className="text-2xl font-bold text-purple-600">$0.08</div>
-            <div className="text-xs text-gray-500">per report</div>
-          </div>
+          <Link href="/deep-analysis" className="block">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full">
+              <div className="text-4xl mb-3">📊</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Deep Token Analysis</h3>
+              <p className="text-gray-600 text-sm mb-4">Full due diligence with social sentiment</p>
+              <div className="text-2xl font-bold text-purple-600">$0.08</div>
+              <div className="text-xs text-gray-500">per report</div>
+            </div>
+          </Link>
 
           {/* Contract Audit */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full opacity-90">
-            <div className="text-4xl mb-3">🛡️</div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Smart Contract Audit</h3>
-            <p className="text-gray-600 text-sm mb-4">Security vulnerability detection</p>
-            <div className="text-2xl font-bold text-purple-600">$0.10</div>
-            <div className="text-xs text-gray-500">per audit</div>
-          </div>
+          <Link href="/contract-audit" className="block">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full">
+              <div className="text-4xl mb-3">🛡️</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Smart Contract Audit</h3>
+              <p className="text-gray-600 text-sm mb-4">Security vulnerability detection</p>
+              <div className="text-2xl font-bold text-purple-600">$0.10</div>
+              <div className="text-xs text-gray-500">per audit</div>
+            </div>
+          </Link>
 
           {/* Wallet Intelligence */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full opacity-90">
-            <div className="text-4xl mb-3">👤</div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Wallet Intelligence</h3>
-            <p className="text-gray-600 text-sm mb-4">Trading pattern analysis & PnL tracking</p>
-            <div className="text-2xl font-bold text-purple-600">$0.05</div>
-            <div className="text-xs text-gray-500">per analysis</div>
-          </div>
+          <Link href="/wallet-intelligence" className="block">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full">
+              <div className="text-4xl mb-3">👤</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Wallet Intelligence</h3>
+              <p className="text-gray-600 text-sm mb-4">Trading pattern analysis & PnL tracking</p>
+              <div className="text-2xl font-bold text-purple-600">$0.05</div>
+              <div className="text-xs text-gray-500">per analysis</div>
+            </div>
+          </Link>
 
           {/* Trading Signals */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full opacity-90">
-            <div className="text-4xl mb-3">📈</div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Trading Signals</h3>
-            <p className="text-gray-600 text-sm mb-4">AI-powered buy/sell recommendations</p>
-            <div className="text-2xl font-bold text-purple-600">$0.03</div>
-            <div className="text-xs text-gray-500">per signal</div>
-          </div>
+          <Link href="/trading-signals" className="block">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full">
+              <div className="text-4xl mb-3">📈</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Trading Signals</h3>
+              <p className="text-gray-600 text-sm mb-4">AI-powered buy/sell recommendations</p>
+              <div className="text-2xl font-bold text-purple-600">$0.03</div>
+              <div className="text-xs text-gray-500">per signal</div>
+            </div>
+          </Link>
 
           {/* Code Generator */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full opacity-90">
-            <div className="text-4xl mb-3">🤖</div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Code Generator</h3>
-            <p className="text-gray-600 text-sm mb-4">Generate Solana program code & tests</p>
-            <div className="text-2xl font-bold text-purple-600">$0.05</div>
-            <div className="text-xs text-gray-500">per generation</div>
-          </div>
+          <Link href="/code-generator" className="block">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow h-full">
+              <div className="text-4xl mb-3">🤖</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Code Generator</h3>
+              <p className="text-gray-600 text-sm mb-4">Generate Solana program code & tests</p>
+              <div className="text-2xl font-bold text-purple-600">$0.05</div>
+              <div className="text-xs text-gray-500">per generation</div>
+            </div>
+          </Link>
         </div>
 
         {/* Info Section */}
