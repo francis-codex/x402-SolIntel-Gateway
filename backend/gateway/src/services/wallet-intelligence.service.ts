@@ -2,7 +2,7 @@ import { BaseAIService } from './base.service';
 import { WalletIntelligenceInput, WalletIntelligenceResult } from '@x402-solintel/types';
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import config from '../config';
-import { getWalletTransactions, getTokenInfo, analyzeTokenHolderDistribution } from '../integrations/helius';
+import { getWalletTransactions, getBatchTokenInfo, analyzeTokenHolderDistribution } from '../integrations/helius';
 import axios from 'axios';
 
 // SPL Token Program ID
@@ -208,36 +208,32 @@ IMPORTANT: Use plain text only. No markdown formatting whatsoever.`;
         console.log('[WALLET_INTELLIGENCE] Could not fetch token prices');
       }
 
+      // Batch fetch token info for all mints at once
+      const tokenInfoMap = await getBatchTokenInfo(mints);
+
       // Format token data
-      const tokenData = await Promise.all(
-        tokenAccounts.value.map(async (acc: any) => {
-          const info = acc.account.data.parsed.info;
-          const mint = info.mint;
-          const amount = info.tokenAmount.uiAmount || 0;
-          const decimals = info.tokenAmount.decimals;
+      const tokenData = tokenAccounts.value.map((acc: any) => {
+        const info = acc.account.data.parsed.info;
+        const mint = info.mint;
+        const amount = info.tokenAmount.uiAmount || 0;
+        const decimals = info.tokenAmount.decimals;
 
-          const price = prices[mint]?.price || 0;
-          const value = amount * price;
+        const price = prices[mint]?.price || 0;
+        const value = amount * price;
 
-          // Get token info for symbol
-          let symbol = mint.substring(0, 6);
-          try {
-            const tokenInfo = await getTokenInfo(mint);
-            symbol = tokenInfo.symbol;
-          } catch {
-            // Use mint substring as fallback
-          }
+        // Get token info for symbol from batch results
+        const tokenInfo = tokenInfoMap.get(mint);
+        const symbol = tokenInfo?.symbol || mint.substring(0, 6);
 
-          return {
-            symbol,
-            mint,
-            value,
-            amount,
-            decimals,
-            price,
-          };
-        })
-      );
+        return {
+          symbol,
+          mint,
+          value,
+          amount,
+          decimals,
+          price,
+        };
+      });
 
       // Filter out dust and zero balances
       const filteredTokens = tokenData.filter(t => t.amount > 0 && t.value > 0.01);
