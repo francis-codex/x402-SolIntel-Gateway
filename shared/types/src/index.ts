@@ -251,6 +251,7 @@ export interface TradingSignalsResult {
   token: {
     address: string;
     symbol: string;
+    name?: string;
   };
   signal: "STRONG BUY" | "BUY" | "HOLD" | "SELL" | "STRONG SELL";
   confidence: number;
@@ -259,10 +260,24 @@ export interface TradingSignalsResult {
   stop_loss: string;
   technical_analysis: {
     trend: "BULLISH" | "NEUTRAL" | "BEARISH";
+    momentum?: string;
+    volatility?: string;
+    strength?: number;
     support_levels: string[];
     resistance_levels: string[];
+    volume_24h?: string;
+    liquidity?: string;
+    market_cap?: string;
+  };
+  security_analysis?: {
+    score: number;
+    risk_flags: string[];
+    freeze_authority: boolean;
+    mint_authority: boolean;
+    liquidity_locked: boolean;
   };
   ai_reasoning: string;
+  data_source?: string;
   timestamp: number;
 }
 
