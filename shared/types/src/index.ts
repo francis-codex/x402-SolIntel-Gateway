@@ -220,6 +220,7 @@ export interface WalletIntelligenceResult {
       token: string;
       value: number;
       percentage: number;
+      risk_score?: number;
     }>;
     total_tokens: number;
     diversification_score: number;
@@ -227,6 +228,13 @@ export interface WalletIntelligenceResult {
   risk_profile: string;
   ai_insights: string;
   copy_trade_signal: "RECOMMENDED" | "NOT RECOMMENDED";
+  copy_trade_reasons?: string[];
+  wallet_stats?: {
+    wallet_age_days: number;
+    first_transaction_date: string;
+    total_transactions: number;
+    avg_daily_transactions: number;
+  };
   timestamp: number;
 }
 

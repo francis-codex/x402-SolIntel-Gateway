@@ -99,7 +99,11 @@ export default function WalletIntelligencePage() {
 
       const transaction = new Transaction();
 
-      const recipientAccountInfo = await connection.getAccountInfo(recipientTokenAccount);
+      // Add timeout for RPC calls to prevent hanging
+      const recipientAccountInfo = await Promise.race([
+        connection.getAccountInfo(recipientTokenAccount),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('RPC timeout')), 10000))
+      ]) as any;
       if (!recipientAccountInfo) {
         transaction.add(
           createAssociatedTokenAccountInstruction(
@@ -234,7 +238,7 @@ export default function WalletIntelligencePage() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Wallet Address
             <span className="ml-2 text-xs text-gray-500 font-normal">
-              (e.g., 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM)
+              (e.g., HyrTWi2rBMHQCPU5RupKja1wms7Xv4osUq1RvUH8cwBh)
             </span>
           </label>
           <input
@@ -321,6 +325,35 @@ export default function WalletIntelligencePage() {
               </div>
             </div>
 
+            {/* Wallet Stats */}
+            {result.wallet_stats && (
+              <div className="mb-6">
+                <h3 className="font-semibold mb-3">Wallet Activity</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <div className="text-sm text-gray-600 mb-1">Wallet Age</div>
+                    <div className="font-semibold">{result.wallet_stats.wallet_age_days} days</div>
+                    <div className="text-xs text-gray-500 mt-1">Since {result.wallet_stats.first_transaction_date}</div>
+                  </div>
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <div className="text-sm text-gray-600 mb-1">Total Transactions</div>
+                    <div className="font-semibold">{result.wallet_stats.total_transactions}</div>
+                  </div>
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <div className="text-sm text-gray-600 mb-1">Daily Avg</div>
+                    <div className="font-semibold">{result.wallet_stats.avg_daily_transactions.toFixed(1)}</div>
+                  </div>
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <div className="text-sm text-gray-600 mb-1">Activity Level</div>
+                    <div className="font-semibold">
+                      {result.wallet_stats.avg_daily_transactions > 10 ? 'High' :
+                       result.wallet_stats.avg_daily_transactions > 3 ? 'Medium' : 'Low'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Balance */}
             <div className="mb-6">
               <h3 className="font-semibold mb-3">Portfolio Balance</h3>
@@ -350,7 +383,7 @@ export default function WalletIntelligencePage() {
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <div className="text-sm text-gray-600 mb-1">Win Rate</div>
-                  <div className="font-semibold">{result.trading_metrics.win_rate.toFixed(1)}%</div>
+                  <div className="font-semibold">{(result.trading_metrics.win_rate * 100).toFixed(1)}%</div>
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <div className="text-sm text-gray-600 mb-1">Total P&L</div>
@@ -390,17 +423,42 @@ export default function WalletIntelligencePage() {
             <div className="mb-6">
               <h3 className="font-semibold mb-3">Top Holdings</h3>
               <div className="space-y-2">
-                {result.portfolio.top_holdings.map((holding: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <div className="font-mono text-sm text-gray-700">{holding.token}</div>
+                {result.portfolio.top_holdings.map((holding: any, i: number) => {
+                  const getRiskColor = (risk: number) => {
+                    if (risk < 30) return 'text-green-600';
+                    if (risk < 60) return 'text-yellow-600';
+                    return 'text-red-600';
+                  };
+                  const getRiskBg = (risk: number) => {
+                    if (risk < 30) return 'bg-green-50';
+                    if (risk < 60) return 'bg-yellow-50';
+                    return 'bg-red-50';
+                  };
+                  const getRiskLabel = (risk: number) => {
+                    if (risk < 30) return 'Low';
+                    if (risk < 60) return 'Medium';
+                    return 'High';
+                  };
+
+                  return (
+                    <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <div className="font-mono text-sm text-gray-700">{holding.token}</div>
+                        {holding.risk_score !== undefined && (
+                          <div className={`text-xs mt-1 inline-block px-2 py-0.5 rounded ${getRiskBg(holding.risk_score)}`}>
+                            <span className={getRiskColor(holding.risk_score)}>
+                              {getRiskLabel(holding.risk_score)} Risk
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold">${holding.value.toLocaleString()}</div>
+                        <div className="text-xs text-gray-500">{holding.percentage.toFixed(1)}%</div>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-semibold">${holding.value.toLocaleString()}</div>
-                      <div className="text-xs text-gray-500">{holding.percentage.toFixed(1)}%</div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="p-4 bg-gray-50 rounded-lg">
@@ -422,7 +480,7 @@ export default function WalletIntelligencePage() {
 
             {/* Copy Trade Signal */}
             <div className={`p-6 rounded-lg mb-6 ${getSignalBg(result.copy_trade_signal)}`}>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mb-4">
                 <div>
                   <div className="text-sm font-medium text-gray-700 mb-1">Copy Trade Signal</div>
                   <div className={`text-3xl font-bold ${getSignalColor(result.copy_trade_signal)}`}>
@@ -433,6 +491,19 @@ export default function WalletIntelligencePage() {
                   {result.copy_trade_signal === 'RECOMMENDED' ? '✅' : '⚠️'}
                 </div>
               </div>
+              {result.copy_trade_reasons && result.copy_trade_reasons.length > 0 && (
+                <div className="border-t border-gray-300 pt-4">
+                  <div className="text-sm font-medium text-gray-700 mb-2">Analysis:</div>
+                  <ul className="space-y-1">
+                    {result.copy_trade_reasons.map((reason: string, i: number) => (
+                      <li key={i} className="text-sm text-gray-600 flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>{reason}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* AI Insights */}
