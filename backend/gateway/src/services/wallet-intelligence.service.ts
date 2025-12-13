@@ -21,8 +21,6 @@ export class WalletIntelligenceService extends BaseAIService {
   }
 
   async execute(input: WalletIntelligenceInput): Promise<WalletIntelligenceResult> {
-    const startTime = Date.now();
-
     // Validate input
     const validation = this.validateInput(input);
     if (!validation.valid) {
@@ -75,32 +73,39 @@ export class WalletIntelligenceService extends BaseAIService {
 
 WALLET DETAILS:
 - Address: ${input.walletAddress}
-- Wallet Age: ${walletStats.wallet_age_days} days (First seen: ${walletStats.first_transaction_date})
-- SOL Balance: ${balance.sol.toFixed(4)} SOL
-- Total USD Value: $${balance.total_usd.toLocaleString()}
-- Token Holdings: ${portfolio.total_tokens} tokens
-- Diversification: ${portfolio.diversification_score}/10
-- Top Holdings: ${portfolio.top_holdings.map(h => `${h.token} ($${h.value.toFixed(0)}, ${h.percentage.toFixed(1)}%)`).join(', ')}
+- Wallet Age: ${walletStats.wallet_age_days} ${walletStats.wallet_age_days === 1 ? 'day' : 'days'} (Since: ${walletStats.first_transaction_date})
+- SOL Balance: ${balance.sol.toFixed(4)} SOL (~$${(balance.sol * 100).toFixed(2)})
+- Total Portfolio Value: $${balance.total_usd.toLocaleString()}
+- Token Holdings: ${portfolio.total_tokens} ${portfolio.total_tokens === 1 ? 'token' : 'tokens'}
+- Diversification Score: ${portfolio.diversification_score}/10
+${portfolio.total_tokens > 0 ? `- Top Holdings: ${portfolio.top_holdings.map(h => `${h.token} ($${h.value.toFixed(0)}, ${h.percentage.toFixed(1)}%)`).join(', ')}` : '- No token holdings (100% SOL)'}
 - Total Transactions: ${walletStats.total_transactions}
-- Trading Activity: ${tradingMetrics.total_trades} trades | ${(tradingMetrics.win_rate * 100).toFixed(1)}% win rate | $${tradingMetrics.total_pnl.toFixed(2)} P&L
+- Activity Rate: ${walletStats.avg_daily_transactions.toFixed(1)} transactions/day
+- Trading Performance: ${tradingMetrics.total_trades} ${tradingMetrics.total_trades === 1 ? 'trade' : 'trades'} | ${(tradingMetrics.win_rate * 100).toFixed(1)}% win rate | ${tradingMetrics.total_pnl >= 0 ? '+' : ''}$${tradingMetrics.total_pnl.toFixed(2)} P&L
 - Average Hold Time: ${tradingMetrics.avg_hold_time}
-- Activity Pattern: ${walletStats.avg_daily_transactions.toFixed(1)} transactions/day
+${tradingMetrics.total_trades > 0 ? `- Best Trade: ${tradingMetrics.best_trade.token} (+$${tradingMetrics.best_trade.profit.toFixed(2)})\n- Worst Trade: ${tradingMetrics.worst_trade.token} ($${tradingMetrics.worst_trade.profit.toFixed(2)})` : ''}
+
+ANALYSIS CONTEXT:
+- This wallet is ${walletStats.wallet_age_days < 7 ? 'VERY NEW (less than a week old)' : walletStats.wallet_age_days < 30 ? 'relatively new (less than a month old)' : walletStats.wallet_age_days < 90 ? 'moderately established (2-3 months old)' : 'well-established'}
+- Transaction volume is ${walletStats.avg_daily_transactions > 50 ? 'EXTREMELY HIGH - potential bot or testing activity' : walletStats.avg_daily_transactions > 10 ? 'HIGH - very active trader' : walletStats.avg_daily_transactions > 2 ? 'MODERATE - regular activity' : 'LOW - occasional activity'}
+- Portfolio size is ${balance.total_usd < 500 ? 'SMALL (micro wallet)' : balance.total_usd < 5000 ? 'MEDIUM (retail wallet)' : balance.total_usd < 50000 ? 'LARGE (serious trader)' : 'VERY LARGE (whale wallet)'}
+- Trading success is ${tradingMetrics.win_rate >= 0.6 ? 'GOOD' : tradingMetrics.win_rate >= 0.4 ? 'AVERAGE' : tradingMetrics.total_trades > 0 ? 'POOR' : 'UNKNOWN (insufficient data)'}
 
 INSTRUCTIONS:
-Provide professional wallet intelligence in PLAIN TEXT (no markdown, no ##, no **, no ---).
+Provide a professional, context-aware analysis in PLAIN TEXT (no markdown, no ##, no **, no bullets, no ---, no lists).
 
-Return 3 sections separated by double newlines:
+Write 3 concise paragraphs separated by double newlines:
 
 PORTFOLIO OVERVIEW
-[2-3 sentences analyzing the wallet's holdings, balance distribution, and overall position sizing]
+Write 2-3 sentences analyzing the wallet's current holdings, balance distribution, and asset allocation strategy. ${portfolio.total_tokens === 0 ? 'Note that the wallet holds only SOL with no token positions - discuss why this might be and what it suggests about the wallet owner.' : 'Discuss the diversification level and portfolio composition.'}
 
 RISK PROFILE ASSESSMENT
-[2-3 sentences about risk level, trading behavior, and investment strategy based on diversification and holdings]
+Write 2-3 sentences about the wallet's risk level based on capital size, diversification, trading behavior, and time horizon. ${walletStats.wallet_age_days < 7 ? 'Emphasize that this is a brand new wallet and any patterns should be viewed with extreme caution.' : ''} ${walletStats.avg_daily_transactions > 50 && tradingMetrics.total_trades < 5 ? 'Note the discrepancy between high transaction count and low successful trades - this suggests failed transactions, contract interactions, or testing activity.' : ''}
 
 TRADING INSIGHTS
-[2-3 sentences with actionable insights about the wallet's behavior, opportunities, or recommendations]
+Write 2-3 sentences with specific, actionable insights. ${tradingMetrics.total_trades < 3 ? 'Since there is very limited trading history, focus on what can be inferred from the transaction patterns and suggest what the wallet owner should focus on.' : 'Provide concrete recommendations based on the trading performance data.'} Avoid generic advice.
 
-IMPORTANT: Use plain text only. No markdown formatting whatsoever.`;
+CRITICAL: Use plain text only. Write in clear, professional paragraphs. No markdown symbols whatsoever.`;
 
       let aiInsights = await this.analyzeWithAI(aiPrompt, analysisData);
 
@@ -112,8 +117,6 @@ IMPORTANT: Use plain text only. No markdown formatting whatsoever.`;
 
       // 8. Generate risk profile
       const riskProfile = this.getRiskProfile(portfolio, balance);
-
-      const executionTime = Date.now() - startTime;
 
       return {
         service: 'wallet-intelligence',
@@ -317,19 +320,40 @@ IMPORTANT: Use plain text only. No markdown formatting whatsoever.`;
    */
   private calculateDiversificationScore(tokens: any[]): number {
     if (tokens.length === 0) return 0;
-    if (tokens.length === 1) return 2;
+    if (tokens.length === 1) return 1;
+    if (tokens.length === 2) return 3;
 
-    // Check concentration
-    const topHoldingPercent = Math.max(...tokens.map((t) => t.percentage));
+    // Calculate concentration risk
+    const topHoldingPercent = Math.max(...tokens.map((t) => t.percentage || 0));
 
-    let score = 10;
-    if (topHoldingPercent > 70) score -= 4;
-    else if (topHoldingPercent > 50) score -= 3;
-    else if (topHoldingPercent > 30) score -= 1;
+    // Calculate top 3 concentration
+    const sortedByValue = [...tokens].sort((a, b) => (b.percentage || 0) - (a.percentage || 0));
+    const top3Percent = sortedByValue.slice(0, 3).reduce((sum, t) => sum + (t.percentage || 0), 0);
 
-    // Reward diversity
-    if (tokens.length >= 10) score += 2;
+    let score = 5; // Start from middle
+
+    // Penalize high concentration
+    if (topHoldingPercent > 80) score -= 3;
+    else if (topHoldingPercent > 60) score -= 2;
+    else if (topHoldingPercent > 40) score -= 1;
+
+    if (top3Percent > 90) score -= 2;
+    else if (top3Percent > 75) score -= 1;
+
+    // Reward number of positions
+    if (tokens.length >= 15) score += 3;
+    else if (tokens.length >= 10) score += 2;
     else if (tokens.length >= 5) score += 1;
+
+    // Reward even distribution
+    const avgPercentage = 100 / tokens.length;
+    const variance = tokens.reduce((sum, t) => {
+      const diff = (t.percentage || 0) - avgPercentage;
+      return sum + (diff * diff);
+    }, 0) / tokens.length;
+
+    if (variance < 100) score += 2; // Very even distribution
+    else if (variance < 300) score += 1; // Moderately even
 
     return Math.max(0, Math.min(10, score));
   }
@@ -428,19 +452,25 @@ IMPORTANT: Use plain text only. No markdown formatting whatsoever.`;
     const sortedTxs = [...transactions].sort((a, b) => a.timestamp - b.timestamp);
 
     const firstTx = sortedTxs[0];
-    const lastTx = sortedTxs[sortedTxs.length - 1];
 
     const firstDate = new Date(firstTx.timestamp * 1000);
     const now = new Date();
 
     const ageMs = now.getTime() - firstDate.getTime();
-    const ageDays = Math.floor(ageMs / (1000 * 60 * 60 * 24));
+    const ageDays = Math.max(1, Math.floor(ageMs / (1000 * 60 * 60 * 24))); // Minimum 1 day
 
-    const avgDaily = ageDays > 0 ? transactions.length / ageDays : transactions.length;
+    const avgDaily = transactions.length / ageDays;
+
+    // Format the date as a readable string
+    const formattedDate = firstDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
 
     return {
       wallet_age_days: ageDays,
-      first_transaction_date: firstDate.toISOString().split('T')[0],
+      first_transaction_date: formattedDate,
       total_transactions: transactions.length,
       avg_daily_transactions: avgDaily,
     };
@@ -490,8 +520,6 @@ IMPORTANT: Use plain text only. No markdown formatting whatsoever.`;
       };
     }
 
-    // Track token positions for P&L calculation
-    const tokenPositions = new Map<string, { buyPrice: number; amount: number; timestamp: number }>();
     const trades: any[] = [];
 
     swaps.forEach((tx: any) => {
@@ -552,18 +580,21 @@ IMPORTANT: Use plain text only. No markdown formatting whatsoever.`;
     });
 
     // Calculate statistics
-    const profitableTrades = trades.filter(t => t.pnl > 0);
-    const losingTrades = trades.filter(t => t.pnl < 0);
-    const totalTrades = profitableTrades.length + losingTrades.length;
-    const winRate = totalTrades > 0 ? profitableTrades.length / totalTrades : 0;
+    const totalTrades = trades.length; // Use all trades
+
+    // Only count trades with meaningful P&L for win rate
+    const tradesWithPnL = trades.filter(t => Math.abs(t.pnl) > 0.01);
+    const profitableWithPnL = tradesWithPnL.filter(t => t.pnl > 0);
+    const winRate = tradesWithPnL.length > 0 ? profitableWithPnL.length / tradesWithPnL.length : 0;
+
     const totalPnL = trades.reduce((sum, t) => sum + t.pnl, 0);
 
-    // Find best and worst trades
-    trades.sort((a, b) => b.pnl - a.pnl);
-    const bestTrade = trades[0] || { token: 'N/A', pnl: 0 };
-    const worstTrade = trades[trades.length - 1] || { token: 'N/A', pnl: 0 };
+    // Find best and worst trades (only from trades with meaningful P&L)
+    const sortedTrades = [...trades].sort((a, b) => b.pnl - a.pnl);
+    const bestTrade = sortedTrades.find(t => t.pnl > 0) || { token: 'N/A', pnl: 0 };
+    const worstTrade = sortedTrades.reverse().find(t => t.pnl < 0) || { token: 'N/A', pnl: 0 };
 
-    console.log(`[WALLET_INTELLIGENCE] Trading stats: ${totalTrades} trades, ${(winRate * 100).toFixed(1)}% win rate, $${totalPnL.toFixed(2)} P&L`);
+    console.log(`[WALLET_INTELLIGENCE] Trading stats: ${totalTrades} trades, ${tradesWithPnL.length} with P&L, ${(winRate * 100).toFixed(1)}% win rate, $${totalPnL.toFixed(2)} P&L`);
 
     return {
       total_trades: totalTrades,
