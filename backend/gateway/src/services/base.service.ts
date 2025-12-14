@@ -19,7 +19,7 @@ export abstract class BaseAIService {
   abstract execute(input: any): Promise<any>;
 
   /**
-   * Analyze data using AI (OpenAI or Claude)
+   * Analyze data using AI Claude Anthropic
    */
   protected async analyzeWithAI(
     prompt: string,

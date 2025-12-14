@@ -1,7 +1,7 @@
 {
-  "name": "x402-solintel-gateway",
+  "name": "SolIntel Gateway",
   "version": "1.0.0",
-  "description": "x402-SolIntel-Gateway - AI-powered Solana intelligence with x402 micropayments",
+  "description": "SolIntel Gateway - AI-powered Solana intelligence with x402 micropayments",
   "private": true,
   "workspaces": [
     "backend/gateway",
@@ -24,7 +24,7 @@
     "crypto",
     "intelligence",
     "micropayments",
-    "openai"
+    "anthropic"
   ],
   "author": "Your Name",
   "license": "MIT",

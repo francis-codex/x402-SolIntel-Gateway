@@ -19,10 +19,8 @@ export interface Config {
   facilitatorUrl: string;
 
   // AI Provider
-  aiProvider: 'openai' | 'anthropic' | 'mock';
-  openaiApiKey: string;
-  openaiModel?: string;
-  anthropicApiKey?: string;
+  aiProvider: 'anthropic' | 'mock';
+  anthropicApiKey: string;
 
   // External APIs
   heliusApiKey: string;
@@ -63,10 +61,8 @@ const config: Config = {
   facilitatorUrl: process.env.FACILITATOR_URL || 'http://localhost:3000',
 
   // AI Provider Configuration
-  aiProvider: (process.env.AI_PROVIDER || 'openai') as 'openai' | 'anthropic' | 'mock',
-  openaiApiKey: process.env.OPENAI_API_KEY || '',
-  openaiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+  aiProvider: (process.env.AI_PROVIDER || 'anthropic') as 'anthropic' | 'mock',
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
 
   heliusApiKey: process.env.HELIUS_API_KEY || '',
   birdeyeApiKey: process.env.BIRDEYE_API_KEY || '',
@@ -93,8 +89,8 @@ if (!config.recipientWallet) {
   console.warn('[CONFIG] Warning: RECIPIENT_WALLET not set');
 }
 
-if (!config.openaiApiKey) {
-  console.warn('[CONFIG] Warning: OPENAI_API_KEY not set');
+if (!config.anthropicApiKey) {
+  console.warn('[CONFIG] Warning: ANTHROPIC_API_KEY not set');
 }
 
 // Log API configuration status
@@ -103,7 +99,6 @@ console.log(`  Helius:     ${config.heliusApiKey ? '✓ Configured' : '✗ Missi
 console.log(`  Birdeye:    ${config.birdeyeApiKey ? '✓ Configured' : '✗ Missing'}`);
 console.log(`  Solscan:    ${config.solscanApiKey ? '✓ Configured' : '✗ Missing (optional)'}`);
 console.log(`  RugCheck:   ${config.rugcheckApiKey ? '✓ Configured' : '✗ Missing (optional)'}`);
-console.log(`  OpenAI:     ${config.openaiApiKey ? '✓ Configured' : '✗ Missing'}`);
 console.log(`  Anthropic:  ${config.anthropicApiKey ? '✓ Configured' : '✗ Missing'}`);
 console.log(`  AI Provider: ${config.aiProvider}`);
 

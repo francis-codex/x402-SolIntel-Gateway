@@ -1,4 +1,4 @@
-# 🎮 x402-SolIntel-Gateway
+# 🎮 SolIntel Gateway
 
 > The ultimate AI-powered Solana intelligence platform. Pay-per-use with x402 micropayments.
 
@@ -8,7 +8,7 @@
 
 ## 🎯 What is This?
 
-A comprehensive AI intelligence platform for Solana users that combines OpenAI's GPT-4 with on-chain data to provide:
+A comprehensive AI intelligence platform for Solana users that combines Anthropic's Claude AI with on-chain data to provide:
 
 - 🔍 **Quick Token Check** - Instant risk scoring and analysis ($0.02)
 - 📊 **Deep Token Analysis** - Full due diligence reports ($0.08)
@@ -37,10 +37,10 @@ API Gateway (Express + x402)
 │  Service  │  Factory  │  Queue   │
 └───────────┴───────────┴──────────┘
          ↓          ↓
-    ┌────────┐  ┌────────┐
-    │ OpenAI │  │ Helius │
-    │  GPT-4 │  │Birdeye │
-    └────────┘  └────────┘
+    ┌──────────┐  ┌────────┐
+    │ Anthropic│  │ Helius │
+    │  Claude  │  │Birdeye │
+    └──────────┘  └────────┘
 ```
 
 ## 🚀 Quick Start
@@ -50,14 +50,14 @@ API Gateway (Express + x402)
 - Node.js 20+
 - pnpm 8+
 - Redis (for job queue)
-- OpenAI API key
+- Anthropic API key
 - Helius API key
 
 ### Installation
 
 ```bash
 # Clone repository
-cd x402-solintel-gateway
+cd SolIntel Gateway
 
 # Install dependencies
 pnpm install:all
@@ -126,7 +126,7 @@ Generate Solana program code.
 - Bull - Job queue
 - Redis - Queue storage
 - @solana/web3.js - Blockchain interaction
-- OpenAI SDK - AI analysis
+- Anthropic SDK - AI analysis
 
 **Frontend**:
 - Next.js 15 - React framework
@@ -134,7 +134,7 @@ Generate Solana program code.
 - TailwindCSS - Styling
 
 **External APIs**:
-- OpenAI GPT-4 - Intelligence layer
+- Anthropic Claude - Intelligence layer
 - Helius - Solana data
 - Birdeye - DeFi metrics
 - Rugcheck - Security scores

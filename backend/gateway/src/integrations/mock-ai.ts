@@ -64,8 +64,8 @@ pub struct Initialize {}
 In production, this would be replaced with actual AI-generated code based on: ${description}
 
 To enable real code generation:
-1. Add OpenAI or Anthropic API key
-2. Set AI_PROVIDER in .env
+1. Add Anthropic API key to .env
+2. Set AI_PROVIDER=anthropic in .env
 3. Restart the gateway`;
 
   return { code, explanation };

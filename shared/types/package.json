@@ -1,7 +1,7 @@
 {
   "name": "@x402-solintel/types",
   "version": "1.0.0",
-  "description": "Shared TypeScript types for x402-SolIntel-Gateway",
+  "description": "Shared TypeScript types for SolIntel Gateway",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

@@ -11,7 +11,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              🤖 x402-SolIntel-Gateway
+              🤖 SolIntel Gateway
             </h1>
             <p className="text-sm text-gray-500">Pay-per-use Solana intelligence with x402</p>
           </div>

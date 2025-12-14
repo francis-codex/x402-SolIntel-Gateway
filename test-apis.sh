@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Test API Connectivity Script
-# Tests all external APIs used by x402-SolIntel-Gateway
+# Tests all external APIs used by SolIntel Gateway
 
 set -e
 
@@ -109,24 +109,26 @@ else
 fi
 echo ""
 
-# Test 4: OpenAI API
-echo "4. Testing OpenAI API..."
-if [ -z "$OPENAI_API_KEY" ]; then
-    echo -e "${RED}❌ OPENAI_API_KEY not set in .env${NC}"
+# Test 4: Anthropic API
+echo "4. Testing Anthropic API..."
+if [ -z "$ANTHROPIC_API_KEY" ]; then
+    echo -e "${RED}❌ ANTHROPIC_API_KEY not set in .env${NC}"
 else
-    RESPONSE=$(curl -s https://api.openai.com/v1/models \
-        -H "Authorization: Bearer $OPENAI_API_KEY" \
+    RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+        -H "x-api-key: $ANTHROPIC_API_KEY" \
+        -H "anthropic-version: 2023-06-01" \
+        -H "content-type: application/json" \
+        -d '{"model":"claude-sonnet-4-5-20250929","max_tokens":10,"messages":[{"role":"user","content":"Hi"}]}' \
         -w "\n%{http_code}")
 
     HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
     BODY=$(echo "$RESPONSE" | sed '$d')
 
     if [ "$HTTP_CODE" -eq 200 ]; then
-        echo -e "${GREEN}✓ OpenAI API working${NC}"
-        MODELS=$(echo $BODY | jq -r '.data | length // 0' 2>/dev/null || echo "0")
-        echo "  Models available: $MODELS"
+        echo -e "${GREEN}✓ Anthropic API working${NC}"
+        echo "  Model: claude-sonnet-4-5"
     else
-        echo -e "${RED}❌ OpenAI API failed (HTTP $HTTP_CODE)${NC}"
+        echo -e "${RED}❌ Anthropic API failed (HTTP $HTTP_CODE)${NC}"
         echo "  Response: $BODY" | head -c 200
     fi
 fi

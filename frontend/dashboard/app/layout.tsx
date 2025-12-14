@@ -3,7 +3,7 @@ import './globals.css';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'x402-SolIntel-Gateway',
+  title: 'SolIntel Gateway',
   description: 'AI-powered Solana intelligence with x402 micropayments',
 };
 

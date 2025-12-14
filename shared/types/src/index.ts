@@ -1,5 +1,5 @@
 /**
- * Shared TypeScript Types for x402-SolIntel-Gateway
+ * Shared TypeScript Types for SolIntel Gateway
  */
 
 // ============================================================================

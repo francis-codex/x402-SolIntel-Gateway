@@ -23,7 +23,7 @@ async function start() {
   app.listen(config.port, config.host, () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
-║   🤖 x402-SolIntel-Gateway - API Gateway         ║
+║   🤖 SolIntel Gateway - API Gateway         ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 Server running at: http://${config.host}:${config.port}
@@ -46,9 +46,9 @@ Recipient Wallet: ${config.recipientWallet || 'NOT SET'}
   GET  /stats                    - Platform statistics
 
 🔑 API Keys:
-  OpenAI:   ${config.openaiApiKey ? '✓ Configured' : '✗ Missing'}
-  Helius:   ${config.heliusApiKey ? '✓ Configured' : '✗ Missing'}
-  Birdeye:  ${config.birdeyeApiKey ? '✓ Configured' : '✗ Missing'}
+  Anthropic: ${config.anthropicApiKey ? '✓ Configured' : '✗ Missing'}
+  Helius:    ${config.heliusApiKey ? '✓ Configured' : '✗ Missing'}
+  Birdeye:   ${config.birdeyeApiKey ? '✓ Configured' : '✗ Missing'}
 
 ⚡ Ready to serve AI intelligence with x402 payments!
     `);
