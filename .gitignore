@@ -39,6 +39,11 @@ receipts/
 
 # IPFS
 .ipfs/
+
+# Vercel
+.vercel
+
+# Documentation (temporary files)
 AI_SETUP_GUIDE.md
 DEBUG_GUIDE.md
 IMPLEMENTATION_SUMMARY.md
@@ -48,3 +53,6 @@ SWITCH_TO_CLAUDE.md
 SETUP_APIS.md
 FIXES_APPLIED.md
 POPULAR_TOKENS.md
+DEPLOYMENT.md
+VERCEL_QUICK_START.md
+PRE_DEPLOYMENT_CHECKLIST.md
