@@ -3,7 +3,7 @@
   "build": {
     "builder": "NIXPACKS",
     "buildCommand": "pnpm install --frozen-lockfile && pnpm build",
-    "nixPkgs": ["nodejs_24", "pnpm-9_x", "python3"]
+    "nixPkgs": ["nodejs", "pnpm", "python3"]
   },
   "deploy": {
     "startCommand": "pnpm start",
