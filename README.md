@@ -307,7 +307,7 @@ API Gateway (Express + x402)
 
 - **Monorepo:** pnpm workspaces
 - **Build:** TypeScript compiler
-- **Deployment:** Vercel (frontend), self-hosted (backend)
+- **Deployment:** Cloudflare Pages (frontend), Railway (backend)
 - **Version Control:** Git
 
 ---
@@ -621,19 +621,37 @@ pnpm -r tsc --noEmit
 
 ## Deployment
 
-### Frontend (Vercel)
+For complete deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md) and [QUICK_DEPLOY.md](QUICK_DEPLOY.md).
+
+### Frontend (Cloudflare Pages)
 
 1. Push repository to GitHub
-2. Import to Vercel
-3. Set root directory: `frontend/dashboard`
-4. Configure environment variables:
+2. Go to Cloudflare Pages → Create project
+3. Connect GitHub repository
+4. Configure build:
+   - Build command: `./cloudflare-build.sh`
+   - Build output: `frontend/dashboard/.next`
+   - Root directory: `/`
+5. Add environment variables:
    ```
-   NEXT_PUBLIC_GATEWAY_URL=https://api.your-domain.com
+   NODE_VERSION=20
+   NEXT_PUBLIC_GATEWAY_URL=https://your-gateway.up.railway.app
    NEXT_PUBLIC_SOLANA_RPC=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
    ```
+6. Deploy (automatic on push to main)
+
+### Backend (Railway)
+
+1. Go to [railway.app](https://railway.app)
+2. Create new project from GitHub repository
+3. Add three services:
+   - **Gateway:** Root directory `backend/gateway`
+   - **Facilitator:** Root directory `backend/facilitator`
+   - **Redis:** Add database → Redis
+4. Configure environment variables (see DEPLOYMENT.md for complete list)
 5. Deploy (automatic on push to main)
 
-### Backend (Docker)
+### Backend (Docker - Alternative)
 
 Create `Dockerfile`:
 
@@ -787,21 +805,21 @@ pnpm build:all
 - Solana mainnet deployment
 - Claude AI integration
 
-### Phase 2: Public Beta (Q1 2025)
+### Phase 2: Public Beta (Q1 2026)
 - User analytics dashboard
 - API rate limiting
 - Enhanced error messages
 - Mobile-responsive improvements
 - Historical data access
 
-### Phase 3: Advanced Features (Q2 2025)
+### Phase 3: Advanced Features (Q2 2026)
 - Developer API keys
 - Bulk pricing discounts
 - Custom alerts and notifications
 - Team collaboration features
 - Portfolio tracking
 
-### Phase 4: Scale (Q3-Q4 2025)
+### Phase 4: Scale (Q3-Q4 2026)
 - White-label licensing
 - Multi-chain support
 - Mobile applications
@@ -845,17 +863,11 @@ MIT License
 
 Copyright (c) 2024 SolIntel Gateway
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 ---
 
 ## Acknowledgments
 
-Built for **Solana x402 Hackathon 2024**
+Built for **Encode Solana Hackathon: Winter Build Challenge 2025**
 
 Powered by:
 - Solana - High-performance blockchain

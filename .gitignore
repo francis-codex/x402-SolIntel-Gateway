@@ -1,3 +1,4 @@
+
 # Dependencies
 node_modules/
 .pnp
@@ -56,3 +57,4 @@ POPULAR_TOKENS.md
 DEPLOYMENT.md
 VERCEL_QUICK_START.md
 PRE_DEPLOYMENT_CHECKLIST.md
+QUICK_DEPLOY.md
