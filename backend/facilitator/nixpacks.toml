@@ -2,10 +2,10 @@
 nixPkgs = ['nodejs', 'pnpm', 'python3']
 
 [phases.install]
-cmds = ['cd ../.. && pnpm install --frozen-lockfile']
+cmds = ['cd /app && pnpm install --frozen-lockfile']
 
 [phases.build]
-cmds = ['cd ../.. && cd backend/facilitator && pnpm build']
+cmds = ['cd /app/backend/facilitator && pnpm build']
 
 [start]
 cmd = 'pnpm start'
