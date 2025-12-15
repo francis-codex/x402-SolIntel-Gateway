@@ -2,24 +2,11 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "nixpacksPlan": {
-      "phases": {
-        "setup": {
-          "nixPkgs": ["nodejs_24", "pnpm-9_x", "python3"]
-        },
-        "install": {
-          "cmds": ["pnpm install --frozen-lockfile"]
-        },
-        "build": {
-          "cmds": ["pnpm build"]
-        }
-      },
-      "start": {
-        "cmd": "pnpm start"
-      }
-    }
+    "buildCommand": "pnpm install --frozen-lockfile && pnpm build",
+    "nixPkgs": ["nodejs_24", "pnpm-9_x", "python3"]
   },
   "deploy": {
+    "startCommand": "pnpm start",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
