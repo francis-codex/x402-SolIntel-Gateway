@@ -7,14 +7,7 @@ set -e  # Exit on error
 
 echo "🚀 Starting Cloudflare Pages build..."
 
-# Install pnpm globally
-echo "📦 Installing pnpm..."
-npm install -g pnpm
-
-# Install all workspace dependencies
-echo "📦 Installing dependencies..."
-pnpm install --frozen-lockfile
-
+# Cloudflare Pages already installs dependencies, so we skip that step
 # Build shared types package first (dashboard depends on it)
 echo "🔨 Building shared types..."
 pnpm --filter @x402-solintel/types build
